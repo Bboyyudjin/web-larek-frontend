@@ -1,16 +1,16 @@
 
-import { Api } from './base/api';
-import {IOrder, ISuccessOrder, IProduct } from "../types";
+import { Api } from '../base/api';
+import {IOrder, ISuccessOrder, IProduct } from "../../types";
 
 export interface IProductsAPI {
   getProductList: () => Promise<IProduct[]>;
-  orderProducts: (order: IOrder) => Promise<ISuccessOrder>;
+  pushOrder: (order: IOrder) => Promise<ISuccessOrder>;
 }
 
 export class ProductsAPI extends Api {
 
-    constructor(baseUrl: string, options?: RequestInit) {
-        super(baseUrl, options);
+    constructor(baseUrl: string) {
+        super(baseUrl);
     }
 
     getProductList(): Promise<IProduct[]> {

@@ -1,6 +1,6 @@
-import { IFormState, IPaymentForm } from "../types";
-import { IEvents } from "./base/events";
-import { Form } from "./common/Form";
+import { IFormState, IPaymentForm } from "../../types";
+import { IEvents } from "../base/events";
+import { Form } from "./Form";
 
 export class ContactsForm extends Form<IPaymentForm&IFormState> {
     protected _email: string;

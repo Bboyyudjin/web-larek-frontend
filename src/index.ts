@@ -2,17 +2,19 @@ import './scss/styles.scss';
 import { API_URL } from './utils/constants';
 import { IProduct, ISuccessOrder, PaymentMethod } from './types';
 import { EventEmitter } from './components/base/events';
-import { ProductsAPI } from './components/ProductsApi';
-import { ProductsList } from './components/ProductsList';
-import { CardInBasket, CardInCatalog, CardPreviw } from './components/common/Card';
-import { Page } from './components/Page';
+import { ProductsAPI } from './components/data-models/ProductsApi';
+import { ProductsView } from './components/Views/ProductsList';
+import { CardInBasket, CardInCatalog, CardPreviw } from './components/Views/Card';
+import { Page } from './components/Views/Page';
 import { ensureElement, cloneTemplate } from './utils/utils';
-import { Modal } from './components/common/Modal';
-import { Basket } from './components/common/Basket';
-import { PaymentForm } from './components/PaymentForm';
-import { ContactsForm } from './components/ContactsForm';
-import { Order } from './components/common/Order';
-import { SuccessWindow } from './components/sucssess';
+import { Modal } from './components/Views/Modal';
+import { BasketView } from './components/Views/Basket';
+import { PaymentForm } from './components/Views/PaymentForm';
+import { ContactsForm } from './components/Views/ContactsForm';
+import { Order } from './components/data-models/Order';
+import { SuccessWindow } from './components/Views/Sucssess';
+import { ProductsModel } from './components/data-models/ProductsModel';
+import { BasketModel } from './components/data-models/BasketModel';
 
 const api = new ProductsAPI(API_URL);
 const events = new EventEmitter();
@@ -35,9 +37,11 @@ const contactsTemplate = ensureElement('#contacts') as HTMLTemplateElement
 const page = new Page(document.body, events)
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events)
 const order = new Order()
+const productsList = new ProductsModel()
+const basket = new BasketModel()
 
-const productsList = new ProductsList(document.querySelector('.gallery'), events)
-const basket = new Basket(cloneTemplate<HTMLTemplateElement>(basketTemplate), events)
+const productsView = new ProductsView(document.querySelector('.gallery'), events)
+const basketView = new BasketView(cloneTemplate<HTMLTemplateElement>(basketTemplate), events)
 const paymentForm = new PaymentForm(cloneTemplate<HTMLFormElement>(orderTemplate), events)
 const contactsForm = new ContactsForm(cloneTemplate<HTMLFormElement>(contactsTemplate), events)
 const successWindow = new SuccessWindow(cloneTemplate<HTMLTemplateElement>(successTemplate), events)
@@ -64,18 +68,20 @@ events.on('cardPreviw:render', (data: IProduct) => {
 // Нажатие на кнопку "Добавить в корзину"
 events.on('product:buy', (data: IProduct) => {
   basket.toggleItem(data)
+  basketView.updateView()
   page.counter = basket.itemsNumber
 })
 
 // Нажатие на кнопку удаления в корзине
 events.on('product:delete', (data: IProduct) => {
   basket.toggleItem(data)
+  basketView.updateView()
   page.counter = basket.itemsNumber
 })
 
 // Открытие корзины
 events.on('basket:open', () => {
-  modal.content = basket.render()
+  modal.content = basketView.render()
   modal.open()
 })
 
@@ -91,18 +97,18 @@ events.on('basket:change', () => {
     basketList.push(card.render(product));
     index += 1
   });
-  basket.total = total
-  basket.items = basketList
+  basketView.total = total
+  basketView.items = basketList
 })
 
 // Открытие формы оплаты
 events.on('payment:open', () => {
-  order.updateOrder({items: basket.getProductsId(), total: basket.total })
+  order.updateOrder({items: basket.getProductsId(), total: basketView.total })
   modal.content = paymentForm.render()
   modal.open()
 })
 
-// Открытие формы контактов
+// Переход к следующему модальному окну
 events.on('order:submit', () => {
   order.updateOrder({address: paymentForm.address, payment: paymentForm.payment as PaymentMethod})
   modal.content = contactsForm.render()
@@ -118,7 +124,7 @@ events.on('contacts:submit', () => {
   successWindow.setTotalPrice(data.total)
   contactsForm.clear()
   paymentForm.clear()
-  basket.clear()
+  basket.clearBasket()
   page.counter = basket.itemsNumber
   modal.open()
 }) .catch(error => {
@@ -144,7 +150,9 @@ events.on('modal:close', () => {
 //Получаем массив продуктов с сервера
 api.getProductList()
   .then((products: IProduct[]) => {
-   productsList.products = products})
+   productsList.products = products
+   productsView.updateView()
+  })
     .catch((err) => {
         console.error(err);
     });

@@ -13,7 +13,7 @@ export class Card extends Component<IProduct>{
   protected _image?: HTMLImageElement
   protected _category?: HTMLSpanElement
   protected _button?: HTMLButtonElement
-  protected index?: HTMLSpanElement
+  protected _index?: HTMLSpanElement
 
   constructor(container: HTMLElement, events:IEvents) {
     super(container, events)
@@ -99,11 +99,11 @@ export class CardInCatalog extends Card {
     constructor(container: HTMLElement, events: IEvents) {
       super(container, events)
       this._button = ensureElement<HTMLButtonElement>('.card__button', container)
-      this.index = ensureElement('.basket__item-index', container)
+      this._index = ensureElement('.basket__item-index', container)
     }
 
     setIndex(value:number) {
-      this.setText(this.index, Number(value))
+      this.setText(this._index, Number(value))
     }
   
     render(data: IProduct): HTMLElement {

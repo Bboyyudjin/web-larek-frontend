@@ -4,7 +4,7 @@ export interface IProduct {
   title: string
   description: string
   image: string
-  category: string
+  category: CategoryOfProduct
   price: number|null
 }
 
@@ -40,7 +40,7 @@ export interface IPaymentForm {
 }
 
 //Тип для способов оплаты
-export type PaymentMethod = 'Cash' | 'Card'| '';
+export type PaymentMethod = 'Cash' | 'Card';
 
 //Интерфейс страницы
 export interface IPage {
@@ -64,6 +64,7 @@ export interface ISuccessOrder {
 // Тип для ошибок форм
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
+// Интерфейс для листа продуктов
 export interface IProductsList {
   setProducts(data:IProduct[]): void
   getProduct(id: string): void

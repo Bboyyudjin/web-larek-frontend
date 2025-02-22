@@ -1,7 +1,7 @@
-import { ISuccessOrder } from "../types";
-import { ensureElement } from "../utils/utils";
-import { Component } from "./base/Component";
-import { IEvents } from "./base/events";
+import { ISuccessOrder } from "../../types";
+import { ensureElement } from "../../utils/utils";
+import { Component } from "../base/Component";
+import { IEvents } from "../base/events";
 
 export class SuccessWindow extends Component<ISuccessOrder> {
   protected _total: HTMLElement;

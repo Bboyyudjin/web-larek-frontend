@@ -1,7 +1,6 @@
-import { IFormState, IPaymentForm, PaymentMethod } from "../types";
-import { ensureElement } from "../utils/utils";
-import { IEvents } from "./base/events";
-import { Form } from "./common/Form";
+import { IFormState, IPaymentForm, PaymentMethod } from "../../types";
+import { IEvents } from "../base/events";
+import { Form } from "./Form";
 
 export class PaymentForm extends Form<IPaymentForm&IFormState> {
     protected _payment: string
@@ -66,11 +65,6 @@ export class PaymentForm extends Form<IPaymentForm&IFormState> {
     get payment() {
         return this._payment
       }
-
-    render(): HTMLElement {
-        super.render();
-        return this.container;
-    }
 
     clear(): void {
         this.container.reset()
