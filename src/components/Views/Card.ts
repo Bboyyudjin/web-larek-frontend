@@ -8,12 +8,8 @@ import { IEvents } from "../base/events";
 // Общий класс карточки
 export class Card extends Component<IProduct>{
   protected _title: HTMLHeadElement
-  protected _description?: HTMLParagraphElement
   protected _price: HTMLSpanElement
-  protected _image?: HTMLImageElement
-  protected _category?: HTMLSpanElement
-  protected _button?: HTMLButtonElement
-  protected _index?: HTMLSpanElement
+  protected _category: HTMLSpanElement
 
   constructor(container: HTMLElement, events:IEvents) {
     super(container, events)
@@ -40,11 +36,14 @@ export class Card extends Component<IProduct>{
 
 // Класс карточки для отображения в каталоге
 export class CardInCatalog extends Card {
+
+  protected _image: HTMLImageElement
+
   constructor(container: HTMLElement, events: IEvents) {
     super(container, events)
     
     this._image = ensureElement<HTMLImageElement>('.card__image', container)
-    this._category = ensureElement<HTMLSpanElement>('.card__category', container)
+    this._category = ensureElement<HTMLSpanElement>('.card__category', container) 
   }
 
   render(data: IProduct): HTMLElement {
@@ -61,6 +60,12 @@ export class CardInCatalog extends Card {
   
 // Класс карточки для открытия превью
   export class CardPreviw extends Card {
+    
+    private _button: HTMLButtonElement;
+    private _description: HTMLParagraphElement;
+    protected _image: HTMLImageElement
+
+
     constructor(container: HTMLElement, events: IEvents) {
       super(container, events)
       
@@ -96,6 +101,10 @@ export class CardInCatalog extends Card {
 
     // Класс карточки для корзины
   export class CardInBasket extends Card {
+    
+    private _button: HTMLButtonElement;
+    private _index: HTMLSpanElement;
+  
     constructor(container: HTMLElement, events: IEvents) {
       super(container, events)
       this._button = ensureElement<HTMLButtonElement>('.card__button', container)

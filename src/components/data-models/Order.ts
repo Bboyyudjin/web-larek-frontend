@@ -1,26 +1,70 @@
-import { IOrder } from "../../types";
+import { IContactsForm, IPaymentForm, PaymentMethod } from "../../types";
+import { IEvents } from "../base/events";
 
-export class Order {
-  private _orderData: IOrder;
+export class Order{
+  private _orderData: IPaymentForm & IContactsForm;
+  private events: IEvents
+  private _errors: object
 
-  constructor() {
+  constructor(events: IEvents) {
       this._orderData = {
-          payment: 'Card',
+          payment: '',
           address: '',
           email: '',
           phone: '',
-          items: [],
-          total: 0,
       };
+      this.events = events
+      this._errors = {}
   }
 
-  // Метод для обновления информации о заказе
-  updateOrder(data: Partial<IOrder>): void {
-      this._orderData = { ...this._orderData, ...data };
+  set payment(payment: PaymentMethod) {
+    this._orderData.payment = payment;
   }
 
-  // Метод для получения информации о заказе
-  get orderData(): IOrder {
-      return this._orderData;
+  set address(address: string) {
+    this._orderData.address = address;
+  }
+
+  set email(email: string) {
+    this._orderData.email = email;
+  }
+
+  set phone(phone: string) {
+      this._orderData.phone = phone;
+  }
+
+  get orderInfo () {
+    return this._orderData
+  }
+
+  validate(form: string) {
+    if (form === 'payment') {
+      this._errors = {
+        payment: !this._orderData.payment ? 'Выберите способ оплаты.' : '',
+        address: !this._orderData.address ? 'Введите адрес доставки.' : '',
+    }} else if (form === 'contacts'){
+      this._errors = {
+      email: !this._orderData.email ? 'Укажите электронную почту.' : '',
+      phone: !this._orderData.phone ? 'Укажите контактный номер телефона.' : '',
+    }}
+
+    if (Object.values(this._errors).some(error => error)) {
+      this.events.emit('order:validationError', this._errors);
+    } else {
+      this.events.emit('order:validationError', {})
+    }
+  }
+
+  get errors() {
+    return this._errors
+  }
+
+  clear() {
+    this._orderData = {
+      payment: '',
+      address: '',
+      email: '',
+      phone: '',
+  };
   }
 }

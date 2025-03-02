@@ -1,24 +1,38 @@
-import { IProduct } from "../../types";
+import { IOrder, IProduct } from "../../types";
+import { IEvents } from "../base/events";
 
 export class BasketModel {
   private _basket: IProduct[] = [];
+  private events: IEvents
+  private _total: number
 
-  constructor() {}
+  constructor(events: IEvents) {
+    this.events = events
+    this._total = 0
+  }
 
   get products() {
     return this._basket;
   }
 
-  getProductsId(): string[] {
-    return this._basket.map(product => product.id);
+  get productsToOrder(): Pick<IOrder, 'items' | 'total'> {
+    return {items: this._basket.map(product => product.id), total: this._total};
   }
 
   toggleItem(product: IProduct): void {
     if (!this.isInBasket(product)) {
       this._basket.push(product);
+      this._total += product.price
+      this.events.emit('basket:change')
     } else {
       this._basket = this._basket.filter(item => item.id !== product.id);
+      this._total -= product.price
+      this.events.emit('basket:change')
     }
+  }
+
+  get total() {
+    return this._total
   }
 
   isInBasket(product: IProduct): boolean {
@@ -31,5 +45,7 @@ export class BasketModel {
 
   clearBasket() {
     this._basket = [];
+    this._total = 0
+    this.events.emit('basket:change')
   }
 }

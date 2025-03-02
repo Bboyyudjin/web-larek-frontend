@@ -7,7 +7,6 @@ export class BasketView extends Component<IBasketModel> {
   protected _list: HTMLElement;
   protected _total: HTMLElement;
   protected _button: HTMLElement;
-  private _totalValue: number = 0;
   
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container, events);
@@ -39,12 +38,7 @@ export class BasketView extends Component<IBasketModel> {
   }
 
   set total(value: number) {
-    this._totalValue = value;
     this.setText(this._total, value + ' синапсов');
-  }
-
-  get total() {
-    return this._totalValue;
   }
 
   updateView() {

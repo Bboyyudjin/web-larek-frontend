@@ -24,6 +24,13 @@ export class Form<T> extends Component<IFormState> {
             e.preventDefault();
             this.events.emit(`${this.container.name}:submit`);
         });
+        this.checkValidation()
+    }
+
+    displayErrors(errors: object) {
+        const errorMessages = Object.values(errors).filter(Boolean).join(' ');
+        this.errors = errorMessages;
+        this.valid = !Object.values(errors).some(error => error);
     }
 
     protected onInputChange(field: keyof T, value: string) {
@@ -31,6 +38,10 @@ export class Form<T> extends Component<IFormState> {
             field,
             value
         });
+    }
+
+    clearErrors() {
+        this.errors = '';
     }
 
     set valid(value: boolean) {
@@ -41,5 +52,7 @@ export class Form<T> extends Component<IFormState> {
         this.setText(this._errors, value);
     }
 
-   
+    checkValidation() {
+      this._submit.disabled = !!this._errors;
+    }
 }

@@ -1,9 +1,8 @@
 import './scss/styles.scss';
 import { API_URL } from './utils/constants';
-import { IProduct, ISuccessOrder, PaymentMethod } from './types';
+import { IPaymentForm, IProduct, ISuccessOrder, PaymentMethod } from './types';
 import { EventEmitter } from './components/base/events';
 import { ProductsAPI } from './components/data-models/ProductsApi';
-import { ProductsView } from './components/Views/ProductsList';
 import { CardInBasket, CardInCatalog, CardPreviw } from './components/Views/Card';
 import { Page } from './components/Views/Page';
 import { ensureElement, cloneTemplate } from './utils/utils';
@@ -36,11 +35,10 @@ const contactsTemplate = ensureElement('#contacts') as HTMLTemplateElement
 //Глобальные переменные
 const page = new Page(document.body, events)
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events)
-const order = new Order()
+const order = new Order(events)
 const productsList = new ProductsModel()
-const basket = new BasketModel()
+const basket = new BasketModel(events)
 
-const productsView = new ProductsView(document.querySelector('.gallery'), events)
 const basketView = new BasketView(cloneTemplate<HTMLTemplateElement>(basketTemplate), events)
 const paymentForm = new PaymentForm(cloneTemplate<HTMLFormElement>(orderTemplate), events)
 const contactsForm = new ContactsForm(cloneTemplate<HTMLFormElement>(contactsTemplate), events)
@@ -68,14 +66,12 @@ events.on('cardPreviw:render', (data: IProduct) => {
 // Нажатие на кнопку "Добавить в корзину"
 events.on('product:buy', (data: IProduct) => {
   basket.toggleItem(data)
-  basketView.updateView()
   page.counter = basket.itemsNumber
 })
 
 // Нажатие на кнопку удаления в корзине
 events.on('product:delete', (data: IProduct) => {
   basket.toggleItem(data)
-  basketView.updateView()
   page.counter = basket.itemsNumber
 })
 
@@ -88,43 +84,64 @@ events.on('basket:open', () => {
 // Изменение корзины
 events.on('basket:change', () => {
   const basketList: HTMLElement[] = []
-  let index = 1
-  let total = 0
-  basket.products.forEach((product: IProduct) => {
+  basket.products.forEach((product: IProduct, index: number) => {
     const card = new CardInBasket(cloneTemplate(cardBasketTemplate), events);
-    card.setIndex(index)
-    total += product.price
+    card.setIndex(index+1)
     basketList.push(card.render(product));
-    index += 1
   });
-  basketView.total = total
+  basketView.total = basket.total
   basketView.items = basketList
 })
 
 // Открытие формы оплаты
 events.on('payment:open', () => {
-  order.updateOrder({items: basket.getProductsId(), total: basketView.total })
   modal.content = paymentForm.render()
-  modal.open()
+  paymentForm.clearErrors()
+  paymentForm.valid = false
 })
+
+// Изменение способа оплаты
+events.on(`paymentMetod:change`, (button: HTMLButtonElement) => {
+  paymentForm.changePaymentMethod(button)
+  order.payment = button.name as PaymentMethod
+  order.validate('payment')
+})
+
+// Ввод в поле "Адрес"
+events.on(`payment:validation`, (input: HTMLInputElement) => {
+  order.address = input.value;
+  order.validate('payment')
+});
 
 // Переход к следующему модальному окну
 events.on('order:submit', () => {
-  order.updateOrder({address: paymentForm.address, payment: paymentForm.payment as PaymentMethod})
   modal.content = contactsForm.render()
-  modal.open()
+  contactsForm.valid = false
+  contactsForm.clearErrors()
 })
+
+// Показ ошибок
+events.on('order:validationError', (errors: object) => {
+  paymentForm.displayErrors(errors);
+  contactsForm.displayErrors(errors);
+});
+
+// Ввод в полях окна "Контакты"
+events.on(`contacts:validation`, ({ input, name }: { input: HTMLInputElement; name: keyof Pick<Order, 'address'| 'email'| 'phone'> }) => {
+  order[name] = input.value;
+  order.validate('contacts')
+});
 
 // Отправка заказа на сервер
 events.on('contacts:submit', () => {
-  order.updateOrder({email: contactsForm.email, phone: contactsForm.phone})
-  api.pushOrder(order.orderData)
+  api.pushOrder(Object.assign({}, order.orderInfo, basket.productsToOrder))
   .then((data: ISuccessOrder) => {
   modal.content = successWindow.render()
   successWindow.setTotalPrice(data.total)
-  contactsForm.clear()
-  paymentForm.clear()
+  order.clear()
   basket.clearBasket()
+  paymentForm.clear()
+  contactsForm.clear()
   page.counter = basket.itemsNumber
   modal.open()
 }) .catch(error => {
@@ -151,7 +168,7 @@ events.on('modal:close', () => {
 api.getProductList()
   .then((products: IProduct[]) => {
    productsList.products = products
-   productsView.updateView()
+   page.updateView()
   })
     .catch((err) => {
         console.error(err);

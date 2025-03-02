@@ -40,7 +40,7 @@ export interface IPaymentForm {
 }
 
 //Тип для способов оплаты
-export type PaymentMethod = 'Cash' | 'Card';
+export type PaymentMethod = 'Cash' | 'Card'| '';
 
 //Интерфейс страницы
 export interface IPage {
