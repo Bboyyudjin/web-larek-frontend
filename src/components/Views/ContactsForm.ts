@@ -24,6 +24,7 @@ export class ContactsForm extends Form<IPaymentForm&IFormState> {
         });
         
         this._button.addEventListener('click', (e) => {
+            e.preventDefault()
             events.emit(`contacts:submit`);
           });
 

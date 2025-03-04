@@ -154,7 +154,7 @@ interface IProductsList {
 - `clear()` - метод для очистки заказа
 
 ### Класс ProductsModel
-Класс хранит информацию о товарах, полученных с сервера.
+Класс хранит информацию о товарах, полученных с сервера. Конструктор класса принимает инстанс класса EventEmitter для создания событий.
 
 #### Поля и методы класса:
 
@@ -174,7 +174,7 @@ interface IProductsList {
 - `getProduct(id: string): IProduct` - метод для получения объекта товара по id
 
 ### Класс BasketModel
-Класс хранит информацию о товарах, которые пользователь добавил в корзину.
+Класс хранит информацию о товарах, которые пользователь добавил в корзину. Конструктор класса принимает инстанс класса EventEmitter для создания событий.
 
 #### Поля и методы класса:
 
@@ -198,7 +198,6 @@ interface IProductsList {
 - `_button: HTMLElement` - свойство, хранящее кнопку оформления заказа
 - `set items(items: HTMLElement[])` - сеттер для обновления разметки в _list
 - `set total(value: number)` - сеттер для обновления итоговой стоимости в корзине
-- `updateView()` - метод для обновления отображения
 
 ### Класс Card
 Родительский класс для классов: CardInCatalog, CardPreviw и CardInBasket. Конструктор класса принимает HTML-элемент контейнера контента и инстанс класса EventEmitter для создания событий.
@@ -207,8 +206,6 @@ interface IProductsList {
 
 - `_title: HTMLHeadElement` - свойство, хранящее заголовок товара
 - `_price: HTMLSpanElement` - свойство, хранящее цену товара
-- `_category: HTMLSpanElement` - свойство, хранящее категорию товара
-- `removeClassListCategory(data: IProduct)` - метод для установки класса в разметке для категории товара
 - `render(data: IProduct): HTMLElement` - метод для отрисовки карточки
 
 ### Класс CardInCatalog
@@ -217,6 +214,8 @@ interface IProductsList {
 #### Поля и методы класса:
 
 - `_image: HTMLImageElement` - свойство, хранящее ссылку на изображение товара
+- `_category: HTMLSpanElement` - свойство, хранящее категорию товара
+- `removeClassListCategory(data: IProduct)` - метод для установки класса в разметке для категории товара
 - `render(data: IProduct): HTMLElement` - метод для отрисовки карточки
 
 ### Класс CardPreviw
@@ -227,6 +226,8 @@ interface IProductsList {
 - `_image: HTMLImageElement` - свойство, хранящее ссылку на изображение товара
 - `_description: HTMLParagraphElement` - свойство, хранящее описание товара
 - `_button: HTMLButtonElement` - свойство, хранящее кнопку товара
+- `_category: HTMLSpanElement` - свойство, хранящее категорию товара
+- `removeClassListCategory(data: IProduct)` - метод для установки класса в разметке для категории товара
 - `changeButtonState(inBasket: boolean)` - метод для определения состояния кнопки добавления/удаления товара
 - `render(data: IProduct): HTMLElement` - метод для отрисовки карточки
 
@@ -252,7 +253,6 @@ interface IProductsList {
 - `set counter(value: number)` - сеттер для установки счётчика корзины
 - `set catalog(items: HTMLElement[])` - сеттер для установки каталога товаров
 - `set locked(value: boolean)` - сеттер для установки/снятия блокировки прокрутки
-- `updateView()` - метод для обновления отображения списка товаров
 
 ### Класс Modal
 Класс для отображения всех модальных окон на сайте. Конструктор класса принимает HTML-элемент контейнера контента и инстанс класса EventEmitter для создания событий.

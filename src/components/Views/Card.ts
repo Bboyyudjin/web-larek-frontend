@@ -9,19 +9,12 @@ import { IEvents } from "../base/events";
 export class Card extends Component<IProduct>{
   protected _title: HTMLHeadElement
   protected _price: HTMLSpanElement
-  protected _category: HTMLSpanElement
 
   constructor(container: HTMLElement, events:IEvents) {
     super(container, events)
 
     this._title = ensureElement<HTMLHeadElement>('.card__title', container)
     this._price = ensureElement<HTMLElement>('.card__price', container)
-  }
-
-  removeClassListCategory(data: IProduct) {
-    this._category.classList.replace(
-      this._category.classList.value.match(/card__category_\S+/)[0], 
-      'card__category_' + productCategorySettings[data.category as keyof typeof productCategorySettings])
   }
 
   render(data: IProduct): HTMLElement {
@@ -38,12 +31,19 @@ export class Card extends Component<IProduct>{
 export class CardInCatalog extends Card {
 
   protected _image: HTMLImageElement
+  protected _category: HTMLSpanElement
 
   constructor(container: HTMLElement, events: IEvents) {
     super(container, events)
     
     this._image = ensureElement<HTMLImageElement>('.card__image', container)
     this._category = ensureElement<HTMLSpanElement>('.card__category', container) 
+  }
+
+  removeClassListCategory(data: IProduct) {
+    this._category.classList.replace(
+      this._category.classList.value.match(/card__category_\S+/)[0], 
+      'card__category_' + productCategorySettings[data.category as keyof typeof productCategorySettings])
   }
 
   render(data: IProduct): HTMLElement {
@@ -64,6 +64,7 @@ export class CardInCatalog extends Card {
     private _button: HTMLButtonElement;
     private _description: HTMLParagraphElement;
     protected _image: HTMLImageElement
+    protected _category: HTMLSpanElement
 
 
     constructor(container: HTMLElement, events: IEvents) {
@@ -75,6 +76,12 @@ export class CardInCatalog extends Card {
       this._category = ensureElement<HTMLSpanElement>('.card__category', container)
     }
 
+    removeClassListCategory(data: IProduct) {
+      this._category.classList.replace(
+        this._category.classList.value.match(/card__category_\S+/)[0], 
+        'card__category_' + productCategorySettings[data.category as keyof typeof productCategorySettings])
+    }
+    
     changeButtonState(inBasket: boolean) {
       if (inBasket) {
         this._button.textContent = 'Убрать из корзины'

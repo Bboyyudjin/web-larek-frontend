@@ -22,13 +22,14 @@ export class PaymentForm extends Form<IPaymentForm&IFormState> {
         });
     }
 
-    changePaymentMethod(selectedButton: HTMLButtonElement) {
-        if (selectedButton === this._buttonCard) {
-          this._buttonCash.classList.remove('button_alt-active');
-        } else {
+    changePaymentMethod(name: string) {
+        if (name.toLowerCase() !== this._buttonCard.name.toLowerCase()) {
           this._buttonCard.classList.remove('button_alt-active');
+          this._buttonCash.classList.add('button_alt-active');
+        } else {
+          this._buttonCash.classList.remove('button_alt-active');
+          this._buttonCard.classList.add('button_alt-active');
         }
-        selectedButton.classList.add('button_alt-active');
     }
 
 

@@ -40,8 +40,4 @@ export class BasketView extends Component<IBasketModel> {
   set total(value: number) {
     this.setText(this._total, value + ' синапсов');
   }
-
-  updateView() {
-    this.events.emit('basket:change')
-  }
 }

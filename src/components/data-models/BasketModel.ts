@@ -3,12 +3,10 @@ import { IEvents } from "../base/events";
 
 export class BasketModel {
   private _basket: IProduct[] = [];
-  private events: IEvents
-  private _total: number
+  private _events: IEvents
 
   constructor(events: IEvents) {
-    this.events = events
-    this._total = 0
+    this._events = events
   }
 
   get products() {
@@ -16,23 +14,21 @@ export class BasketModel {
   }
 
   get productsToOrder(): Pick<IOrder, 'items' | 'total'> {
-    return {items: this._basket.map(product => product.id), total: this._total};
+    return {items: this._basket.map(product => product.id), total: this.getTotal()};
   }
 
   toggleItem(product: IProduct): void {
     if (!this.isInBasket(product)) {
       this._basket.push(product);
-      this._total += product.price
-      this.events.emit('basket:change')
+      this._events.emit('basket:change')
     } else {
       this._basket = this._basket.filter(item => item.id !== product.id);
-      this._total -= product.price
-      this.events.emit('basket:change')
+      this._events.emit('basket:change')
     }
   }
 
-  get total() {
-    return this._total
+  getTotal(): number {
+    return this._basket.reduce((total, item) => total + item.price, 0);
   }
 
   isInBasket(product: IProduct): boolean {
@@ -45,7 +41,6 @@ export class BasketModel {
 
   clearBasket() {
     this._basket = [];
-    this._total = 0
-    this.events.emit('basket:change')
+    this._events.emit('basket:change')
   }
 }

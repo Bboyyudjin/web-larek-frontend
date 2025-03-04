@@ -3,7 +3,7 @@ import { IEvents } from "../base/events";
 
 export class Order{
   private _orderData: IPaymentForm & IContactsForm;
-  private events: IEvents
+  private _events: IEvents
   private _errors: object
 
   constructor(events: IEvents) {
@@ -13,12 +13,13 @@ export class Order{
           email: '',
           phone: '',
       };
-      this.events = events
+      this._events = events
       this._errors = {}
   }
 
   set payment(payment: PaymentMethod) {
     this._orderData.payment = payment;
+    this._events.emit('paymentForm:change')
   }
 
   set address(address: string) {
@@ -49,9 +50,9 @@ export class Order{
     }}
 
     if (Object.values(this._errors).some(error => error)) {
-      this.events.emit('order:validationError', this._errors);
+      this._events.emit('order:validationError', this._errors);
     } else {
-      this.events.emit('order:validationError', {})
+      this._events.emit('order:validationError', {})
     }
   }
 

@@ -36,14 +36,13 @@ const contactsTemplate = ensureElement('#contacts') as HTMLTemplateElement
 const page = new Page(document.body, events)
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events)
 const order = new Order(events)
-const productsList = new ProductsModel()
+const productsList = new ProductsModel(events)
 const basket = new BasketModel(events)
 
 const basketView = new BasketView(cloneTemplate<HTMLTemplateElement>(basketTemplate), events)
 const paymentForm = new PaymentForm(cloneTemplate<HTMLFormElement>(orderTemplate), events)
 const contactsForm = new ContactsForm(cloneTemplate<HTMLFormElement>(contactsTemplate), events)
 const successWindow = new SuccessWindow(cloneTemplate<HTMLTemplateElement>(successTemplate), events)
-
 
 // Изменение массива карточек
 events.on('productsList:changed', () => {
@@ -89,22 +88,27 @@ events.on('basket:change', () => {
     card.setIndex(index+1)
     basketList.push(card.render(product));
   });
-  basketView.total = basket.total
+  basketView.total = basket.getTotal()
   basketView.items = basketList
 })
 
 // Открытие формы оплаты
 events.on('payment:open', () => {
+  order.validate('payment')
   modal.content = paymentForm.render()
   paymentForm.clearErrors()
-  paymentForm.valid = false
 })
 
-// Изменение способа оплаты
+// Изменение способа оплаты в модели данных
 events.on(`paymentMetod:change`, (button: HTMLButtonElement) => {
-  paymentForm.changePaymentMethod(button)
   order.payment = button.name as PaymentMethod
   order.validate('payment')
+})
+
+// Изменение способа оплаты в отображении
+events.on(`paymentForm:change`, () => {
+  paymentForm.changePaymentMethod(order.orderInfo.payment)
+  paymentForm.render()
 })
 
 // Ввод в поле "Адрес"
@@ -116,7 +120,7 @@ events.on(`payment:validation`, (input: HTMLInputElement) => {
 // Переход к следующему модальному окну
 events.on('order:submit', () => {
   modal.content = contactsForm.render()
-  contactsForm.valid = false
+  order.validate('contacts')
   contactsForm.clearErrors()
 })
 
@@ -168,7 +172,6 @@ events.on('modal:close', () => {
 api.getProductList()
   .then((products: IProduct[]) => {
    productsList.products = products
-   page.updateView()
   })
     .catch((err) => {
         console.error(err);
